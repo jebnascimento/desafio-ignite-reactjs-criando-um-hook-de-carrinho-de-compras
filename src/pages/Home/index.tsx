@@ -16,6 +16,7 @@ interface Product {
 
 interface ProductFormatted extends Product {
   priceFormatted: string;
+  subTotal?: string;
 }
 
 interface CartItemsAmount {
@@ -27,18 +28,10 @@ const Home = (): JSX.Element => {
   const { addProduct, cart } = useCart();
 
   const cartItemsAmount = cart.reduce((sumAmount, product) => {
-    if (product.id in sumAmount) {
-      return {
-        [product.id]: sumAmount[product.id] + 1,
-      };
-    }
-
-    return {
-      ...sumAmount,
-      [product.id]: 1,
-    };
+    const newSumAmount = { ...sumAmount };
+    newSumAmount[product.id] = product.amount;
+    return newSumAmount;
   }, {} as CartItemsAmount);
-
   useEffect(() => {
     async function loadProducts() {
       const response = await api.get<Product[]>("/products");
@@ -52,7 +45,6 @@ const Home = (): JSX.Element => {
         })
       );
     }
-
     loadProducts();
   }, []);
 
